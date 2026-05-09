@@ -349,7 +349,7 @@ function Inbox() {
 
   const setDomainFilterUrl = (v: string) => {
     setDomainFilter(v);
-    nav({ search: (prev) => ({ ...prev, d: v }) });
+    nav({ search: (prev: { f: Filter; s: string; d: string }) => ({ ...prev, d: v }) });
   };
 
   return (
