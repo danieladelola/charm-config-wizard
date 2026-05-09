@@ -476,7 +476,7 @@ function Inbox() {
                         {m.attachment_url && (
                           <AttachmentView url={m.attachment_url} name={m.attachment_name} type={m.attachment_type} dark={m.sender === "admin"} />
                         )}
-                        {m.body && <div className="whitespace-pre-wrap break-words">{m.body}</div>}
+                        {m.body && <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{m.body}</div>}
                       </div>
                     </div>
                   </div>
