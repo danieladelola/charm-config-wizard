@@ -752,6 +752,16 @@ function countryFlag(code?: string | null): string {
   return String.fromCodePoint(...[...cc].map((c) => 127397 + c.charCodeAt(0)));
 }
 
+function TypingDots() {
+  return (
+    <span className="ml-1 inline-flex gap-0.5 align-middle">
+      <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
+      <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
+      <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground" />
+    </span>
+  );
+}
+
 function AttachmentView({ url, name, type, dark }: { url: string; name?: string | null; type?: string | null; dark?: boolean }) {
   const isImage = (type || "").startsWith("image/") || /\.(png|jpe?g|gif|webp|svg)$/i.test(url);
   if (isImage) {
