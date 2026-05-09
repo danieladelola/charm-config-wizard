@@ -605,6 +605,12 @@ function Inbox() {
 
           <div>
             <SectionLabel>Quick actions</SectionLabel>
+          </div>
+        </aside>
+      )}
+    </div>
+  );
+}
             <div className="mt-2 grid grid-cols-2 gap-1.5">
               <Button variant="outline" size="sm" onClick={() => setStatus("open")}>
                 Open
