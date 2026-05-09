@@ -604,6 +604,25 @@ function Inbox() {
           </div>
 
           <div>
+            <SectionLabel>Location</SectionLabel>
+            <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 p-2.5">
+              {active.country_code ? (
+                <span className="text-2xl leading-none">{countryFlag(active.country_code)}</span>
+              ) : (
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-medium">
+                  {active.country || active.country_code || "Unknown location"}
+                </div>
+                <div className="truncate text-xs text-muted-foreground">
+                  {[active.city, active.ip_address].filter(Boolean).join(" · ") || "No location data"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
             <SectionLabel>Quick actions</SectionLabel>
             <div className="mt-2 grid grid-cols-2 gap-1.5">
               <Button variant="outline" size="sm" onClick={() => setStatus("open")}>
