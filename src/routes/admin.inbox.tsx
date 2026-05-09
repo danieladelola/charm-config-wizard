@@ -74,6 +74,11 @@ function Inbox() {
   const activeIdRef = useRef<string | null>(null);
   activeIdRef.current = activeId;
 
+  const [visitorTyping, setVisitorTyping] = useState(false);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const visitorTypingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastAdminTypingSentRef = useRef(0);
+
   // sync filter to url
   useEffect(() => {
     setFilter(initialFilter);
@@ -168,7 +173,39 @@ function Inbox() {
   // Auto-scroll
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages.length, activeId]);
+  }, [messages.length, activeId, visitorTyping]);
+
+  // Typing indicator channel (per active session)
+  useEffect(() => {
+    if (!activeId) {
+      setVisitorTyping(false);
+      return;
+    }
+    const ch = supabase
+      .channel(`chat-typing-${activeId}`, { config: { broadcast: { self: false } } })
+      .on("broadcast", { event: "visitor-typing" }, () => {
+        setVisitorTyping(true);
+        if (visitorTypingTimerRef.current) clearTimeout(visitorTypingTimerRef.current);
+        visitorTypingTimerRef.current = setTimeout(() => setVisitorTyping(false), 3000);
+      })
+      .subscribe();
+    typingChannelRef.current = ch;
+    return () => {
+      supabase.removeChannel(ch);
+      typingChannelRef.current = null;
+      if (visitorTypingTimerRef.current) clearTimeout(visitorTypingTimerRef.current);
+      setVisitorTyping(false);
+    };
+  }, [activeId]);
+
+  const broadcastAdminTyping = useCallback(() => {
+    const ch = typingChannelRef.current;
+    if (!ch) return;
+    const now = Date.now();
+    if (now - lastAdminTypingSentRef.current < 1500) return;
+    lastAdminTypingSentRef.current = now;
+    ch.send({ type: "broadcast", event: "admin-typing", payload: {} });
+  }, []);
 
   const filtered = useMemo(() => {
     return sessions.filter((s) => {
@@ -482,6 +519,14 @@ function Inbox() {
                   </div>
                 );
               })}
+              {visitorTyping && (
+                <div className="flex w-full justify-start">
+                  <div className="rounded-2xl rounded-bl-sm bg-card px-3 py-2 text-xs italic text-muted-foreground shadow-sm">
+                    <span className="font-medium not-italic text-foreground">{activeVisitor?.name || "Visitor"}</span> is typing
+                    <TypingDots />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="border-t bg-card p-3">
@@ -521,7 +566,10 @@ function Inbox() {
                 </Button>
                 <Textarea
                   value={reply}
-                  onChange={(e) => setReply(e.target.value)}
+                  onChange={(e) => {
+                    setReply(e.target.value);
+                    if (e.target.value.trim()) broadcastAdminTyping();
+                  }}
                   placeholder="Type your reply…  (Enter to send, Shift+Enter for newline)"
                   className="min-h-[56px] resize-none"
                   onKeyDown={(e) => {
@@ -702,6 +750,16 @@ function countryFlag(code?: string | null): string {
   if (!code || code.length !== 2) return "";
   const cc = code.toUpperCase();
   return String.fromCodePoint(...[...cc].map((c) => 127397 + c.charCodeAt(0)));
+}
+
+function TypingDots() {
+  return (
+    <span className="ml-1 inline-flex gap-0.5 align-middle">
+      <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
+      <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
+      <span className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground" />
+    </span>
+  );
 }
 
 function AttachmentView({ url, name, type, dark }: { url: string; name?: string | null; type?: string | null; dark?: boolean }) {
