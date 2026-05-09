@@ -308,7 +308,7 @@ function WidgetPreview({ settings }: { settings: WidgetSettings }) {
       </div>
       <div className="space-y-2 bg-zinc-50 p-3 dark:bg-zinc-950">
         <div className="max-w-[80%] rounded-2xl bg-white px-3 py-2 text-xs text-zinc-700 shadow-sm dark:bg-zinc-800 dark:text-zinc-200">
-          {settings.welcome_message || "Hi! How can we help?"}
+          {settings.welcome_message || "Welcome! Tell us what you need help with today."}
         </div>
         <div className="ml-auto max-w-[80%] rounded-2xl px-3 py-2 text-xs text-white shadow-sm" style={{ background: settings.brand_color }}>
           Hi, I have a question 👋
