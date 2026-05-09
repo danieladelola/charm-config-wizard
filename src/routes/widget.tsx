@@ -57,6 +57,11 @@ function WidgetApp() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [adminTyping, setAdminTyping] = useState(false);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const adminTypingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastVisitorTypingSentRef = useRef(0);
+
   // Always-online support status
   const adminOnline = true;
 
@@ -165,7 +170,36 @@ function WidgetApp() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages.length]);
+  }, [messages.length, adminTyping]);
+
+  // Typing channel
+  useEffect(() => {
+    if (!session) return;
+    const ch = supabase
+      .channel(`chat-typing-${session.id}`, { config: { broadcast: { self: false } } })
+      .on("broadcast", { event: "admin-typing" }, () => {
+        setAdminTyping(true);
+        if (adminTypingTimerRef.current) clearTimeout(adminTypingTimerRef.current);
+        adminTypingTimerRef.current = setTimeout(() => setAdminTyping(false), 3000);
+      })
+      .subscribe();
+    typingChannelRef.current = ch;
+    return () => {
+      supabase.removeChannel(ch);
+      typingChannelRef.current = null;
+      if (adminTypingTimerRef.current) clearTimeout(adminTypingTimerRef.current);
+      setAdminTyping(false);
+    };
+  }, [session]);
+
+  const broadcastVisitorTyping = () => {
+    const ch = typingChannelRef.current;
+    if (!ch) return;
+    const now = Date.now();
+    if (now - lastVisitorTypingSentRef.current < 1500) return;
+    lastVisitorTypingSentRef.current = now;
+    ch.send({ type: "broadcast", event: "visitor-typing", payload: {} });
+  };
 
   const startChat = useCallback(async () => {
     if (!widget || !settings) return;
@@ -415,6 +449,19 @@ function WidgetApp() {
                 </div>
               </div>
             ))}
+            {adminTyping && (
+              <div className="flex items-end gap-2 justify-start">
+                <img src={logoUrl} alt={supportName} className="h-7 w-7 shrink-0 rounded-full bg-black/40 object-cover ring-1 ring-black/5" />
+                <div className="rounded-2xl bg-gray-100 px-3 py-2 text-xs italic text-gray-600">
+                  <span className="font-semibold not-italic text-gray-700">{supportName}</span> is typing
+                  <span className="ml-1 inline-flex gap-0.5 align-middle">
+                    <span className="h-1 w-1 animate-bounce rounded-full bg-gray-500 [animation-delay:-0.3s]" />
+                    <span className="h-1 w-1 animate-bounce rounded-full bg-gray-500 [animation-delay:-0.15s]" />
+                    <span className="h-1 w-1 animate-bounce rounded-full bg-gray-500" />
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex items-end gap-2 border-t p-2">
             <input
@@ -437,7 +484,10 @@ function WidgetApp() {
             </button>
             <input
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              onChange={(e) => {
+                setDraft(e.target.value);
+                if (e.target.value.trim()) broadcastVisitorTyping();
+              }}
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), sendMessage())}
               placeholder="Type a message…"
               className="flex-1 rounded-md border px-3 py-2 text-sm outline-none focus:border-gray-400"
