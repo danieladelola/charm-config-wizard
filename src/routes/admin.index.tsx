@@ -170,10 +170,15 @@ function Dashboard() {
                       </div>
                       <div className="truncate text-xs text-muted-foreground">{v?.email || s.domain || s.page_url}</div>
                     </div>
-                    <div className="shrink-0 text-right text-[11px] text-muted-foreground">
-                      {formatDistanceToNow(new Date(s.last_message_at), { addSuffix: true })}
+                    <div className="shrink-0 text-right text-[10px] text-muted-foreground sm:text-[11px]">
+                      <span className="hidden sm:inline">
+                        {formatDistanceToNow(new Date(s.last_message_at), { addSuffix: true })}
+                      </span>
+                      <span className="sm:hidden">
+                        {formatDistanceToNow(new Date(s.last_message_at), { addSuffix: false })}
+                      </span>
                       {s.unread_for_admin > 0 && (
-                        <Badge variant="destructive" className="ml-2 h-4 px-1.5 text-[10px]">
+                        <Badge variant="destructive" className="ml-1 h-4 px-1.5 text-[10px] sm:ml-2">
                           {s.unread_for_admin}
                         </Badge>
                       )}
