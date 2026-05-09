@@ -414,17 +414,17 @@ function Inbox() {
                   {[activeVisitor?.email, activeVisitor?.phone, active.domain].filter(Boolean).join(" · ")}
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" onClick={markUnread} title="Mark unread">
-                  <Clock className="h-3.5 w-3.5" />
+              <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+                <Button variant="ghost" size="icon" onClick={markUnread} title="Mark unread">
+                  <Clock className="h-4 w-4" />
                 </Button>
                 {active.status !== "closed" ? (
-                  <Button variant="outline" size="sm" onClick={() => setStatus("closed")}>
-                    <X className="mr-1 h-3.5 w-3.5" /> Close
+                  <Button variant="outline" size="sm" onClick={() => setStatus("closed")} title="Close chat" className="px-2 sm:px-3">
+                    <X className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Close</span>
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm" onClick={() => setStatus("open")}>
-                    <RotateCcw className="mr-1 h-3.5 w-3.5" /> Reopen
+                  <Button variant="outline" size="sm" onClick={() => setStatus("open")} title="Reopen chat" className="px-2 sm:px-3">
+                    <RotateCcw className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Reopen</span>
                   </Button>
                 )}
                 <AlertDialog>
