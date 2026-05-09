@@ -18,7 +18,7 @@
   }
   var BASE = (script.getAttribute("data-base-url") || "https://chat.tradeshorizons.vip").replace(/\/$/, "");
   var color = script.getAttribute("data-color") || "#1e90ff";
-  var btnText = script.getAttribute("data-button-text") || "TZ Support";
+  var btnText = script.getAttribute("data-button-text") || "Support";
   var logoUrl = script.getAttribute("data-logo-url") || (BASE + "/tz-logo.png");
   var gradient = "linear-gradient(135deg,#7c3aed 0%," + color + " 100%)";
 
