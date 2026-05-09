@@ -709,7 +709,7 @@ function AttachmentView({ url, name, type, dark }: { url: string; name?: string 
   if (isImage) {
     return (
       <a href={url} target="_blank" rel="noopener noreferrer" className="mb-1 block">
-        <img src={url} alt={name || "attachment"} className="max-h-56 max-w-full rounded-md object-cover" />
+      <img src={url} alt={name || "attachment"} className="block max-h-56 w-full max-w-full rounded-md object-cover" />
       </a>
     );
   }
