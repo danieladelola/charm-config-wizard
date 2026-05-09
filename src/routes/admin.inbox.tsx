@@ -298,9 +298,9 @@ function Inbox() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-background">
+    <div className="flex h-[calc(100vh-3.5rem)] w-full max-w-full overflow-hidden bg-background">
       {/* Conversation list */}
-      <div className={`flex w-full flex-col border-r bg-card md:w-80 ${active ? "hidden md:flex" : "flex"}`}>
+      <div className={`flex w-full min-w-0 flex-col border-r bg-card md:w-80 md:shrink-0 ${active ? "hidden md:flex" : "flex"}`}>
         <div className="space-y-2 border-b p-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -382,7 +382,7 @@ function Inbox() {
       </div>
 
       {/* Conversation */}
-      <div className={`flex flex-1 flex-col ${active ? "flex" : "hidden md:flex"}`}>
+      <div className={`flex min-w-0 flex-1 flex-col overflow-hidden ${active ? "flex" : "hidden md:flex"}`}>
         {!active ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
             <div className="grid h-14 w-14 place-items-center rounded-full bg-muted">
@@ -452,7 +452,7 @@ function Inbox() {
               </div>
             </div>
 
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-muted/20 p-4">
+            <div ref={scrollRef} className="min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto bg-muted/20 p-3 sm:p-4">
               {messages.map((m, i) => {
                 const showTime =
                   i === 0 || new Date(m.created_at).getTime() - new Date(messages[i - 1].created_at).getTime() > 5 * 60 * 1000;
@@ -463,9 +463,9 @@ function Inbox() {
                         {format(new Date(m.created_at), "PP · HH:mm")}
                       </div>
                     )}
-                    <div className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
+                    <div className={`flex w-full ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${
+                        className={`max-w-[85%] min-w-0 break-words rounded-2xl px-3 py-2 text-sm shadow-sm sm:max-w-[78%] sm:px-3.5 ${
                           m.sender === "admin"
                             ? "rounded-br-sm bg-primary text-primary-foreground"
                             : m.sender === "system"
@@ -476,7 +476,7 @@ function Inbox() {
                         {m.attachment_url && (
                           <AttachmentView url={m.attachment_url} name={m.attachment_name} type={m.attachment_type} dark={m.sender === "admin"} />
                         )}
-                        {m.body && <div className="whitespace-pre-wrap break-words">{m.body}</div>}
+                        {m.body && <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{m.body}</div>}
                       </div>
                     </div>
                   </div>
@@ -709,7 +709,7 @@ function AttachmentView({ url, name, type, dark }: { url: string; name?: string 
   if (isImage) {
     return (
       <a href={url} target="_blank" rel="noopener noreferrer" className="mb-1 block">
-        <img src={url} alt={name || "attachment"} className="max-h-56 max-w-full rounded-md object-cover" />
+      <img src={url} alt={name || "attachment"} className="block max-h-56 w-full max-w-full rounded-md object-cover" />
       </a>
     );
   }
