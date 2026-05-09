@@ -49,11 +49,12 @@ export const Route = createFileRoute("/admin/inbox")({
   validateSearch: (s: Record<string, unknown>) => ({
     f: (s.f as Filter) || "all",
     s: (s.s as string) || "",
+    d: (s.d as string) || "",
   }),
 });
 
 function Inbox() {
-  const { f: initialFilter, s: initialSession } = Route.useSearch();
+  const { f: initialFilter, s: initialSession, d: initialDomain } = Route.useSearch();
   const nav = useNavigate({ from: "/admin/inbox" });
 
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -63,6 +64,7 @@ function Inbox() {
   const [notes, setNotes] = useState<ChatNote[]>([]);
   const [savedReplies, setSavedReplies] = useState<SavedReply[]>([]);
   const [filter, setFilter] = useState<Filter>(initialFilter);
+  const [domainFilter, setDomainFilter] = useState<string>(initialDomain || "");
   const [search, setSearch] = useState("");
   const [reply, setReply] = useState("");
   const [noteDraft, setNoteDraft] = useState("");
@@ -213,6 +215,7 @@ function Inbox() {
       if (filter === "pending" && s.status !== "pending") return false;
       if (filter === "closed" && s.status !== "closed") return false;
       if (filter === "unread" && s.unread_for_admin === 0) return false;
+      if (domainFilter && normalizeDomain(s.domain) !== domainFilter) return false;
       if (search) {
         const v = visitors[s.visitor_id];
         const hay = [v?.name, v?.email, v?.phone, s.domain, s.page_url]
@@ -223,7 +226,17 @@ function Inbox() {
       }
       return true;
     });
-  }, [sessions, filter, search, visitors]);
+  }, [sessions, filter, search, visitors, domainFilter]);
+
+  const domainCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of sessions) {
+      const d = normalizeDomain(s.domain);
+      if (!d) continue;
+      m.set(d, (m.get(d) ?? 0) + 1);
+    }
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1]);
+  }, [sessions]);
 
   const active = activeId ? sessions.find((s) => s.id === activeId) : null;
   const activeVisitor = active ? visitors[active.visitor_id] : null;
@@ -334,6 +347,11 @@ function Inbox() {
     nav({ search: (prev: { f: Filter; s: string }) => ({ ...prev, f: v }) });
   };
 
+  const setDomainFilterUrl = (v: string) => {
+    setDomainFilter(v);
+    nav({ search: (prev: { f: Filter; s: string; d: string }) => ({ ...prev, d: v }) });
+  };
+
   return (
     <div className="flex h-[calc(100vh-3.5rem)] w-full max-w-full overflow-hidden bg-background">
       {/* Conversation list */}
@@ -358,6 +376,39 @@ function Inbox() {
               <TabsTrigger value="closed">Closed</TabsTrigger>
             </TabsList>
           </Tabs>
+          {domainCounts.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              <button
+                onClick={() => setDomainFilterUrl("")}
+                className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                  domainFilter === "" ? "border-primary bg-primary text-primary-foreground" : "bg-muted/40 hover:bg-muted"
+                }`}
+                title="Show all sites"
+              >
+                <Globe className="h-2.5 w-2.5" /> All sites
+              </button>
+              {domainCounts.map(([d, count]) => {
+                const active = domainFilter === d;
+                return (
+                  <button
+                    key={d}
+                    onClick={() => setDomainFilterUrl(active ? "" : d)}
+                    className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                      active ? "border-primary text-primary-foreground" : "hover:bg-muted"
+                    }`}
+                    style={
+                      active
+                        ? { background: domainColor(d), color: "#fff", borderColor: domainColor(d) }
+                        : { background: domainColor(d) + "22", color: domainColor(d), borderColor: domainColor(d) + "55" }
+                    }
+                    title={`Filter chats from ${d}`}
+                  >
+                    {d} <span className="opacity-70">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
         <ScrollArea className="flex-1">
           {filtered.length === 0 && (
@@ -404,7 +455,10 @@ function Inbox() {
                   </div>
                   <div className="truncate text-xs text-muted-foreground">{v?.email || s.domain || s.page_url}</div>
                   <div className="mt-1 flex items-center justify-between gap-2">
-                    <StatusPill status={s.status} />
+                    <div className="flex min-w-0 items-center gap-1">
+                      <StatusPill status={s.status} />
+                      {s.domain && <DomainBadge domain={s.domain} />}
+                    </div>
                     {s.unread_for_admin > 0 && (
                       <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">
                         {s.unread_for_admin}
@@ -736,6 +790,35 @@ function StatusPill({ status }: { status: ChatSession["status"] }) {
     closed: "bg-slate-500/10 text-slate-600 dark:text-slate-300",
   };
   return <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium capitalize ${map[status]}`}>{status}</span>;
+}
+
+function normalizeDomain(d?: string | null): string {
+  if (!d) return "";
+  return d.toLowerCase().replace(/^www\./, "").trim();
+}
+
+function domainColor(d: string): string {
+  // Deterministic hue per domain so each site gets a stable color.
+  let h = 0;
+  for (let i = 0; i < d.length; i++) h = (h * 31 + d.charCodeAt(i)) >>> 0;
+  const hue = h % 360;
+  return `hsl(${hue} 70% 45%)`;
+}
+
+function DomainBadge({ domain }: { domain: string }) {
+  const d = normalizeDomain(domain);
+  if (!d) return null;
+  const color = domainColor(d);
+  return (
+    <span
+      className="inline-flex max-w-[140px] items-center gap-1 truncate rounded-md px-1.5 py-0.5 text-[10px] font-medium"
+      style={{ background: color + "1f", color }}
+      title={d}
+    >
+      <Globe className="h-2.5 w-2.5 shrink-0" />
+      <span className="truncate">{d}</span>
+    </span>
+  );
 }
 
 function SectionLabel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
