@@ -298,9 +298,9 @@ function Inbox() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-background">
+    <div className="flex h-[calc(100vh-3.5rem)] w-full max-w-full overflow-hidden bg-background">
       {/* Conversation list */}
-      <div className={`flex w-full flex-col border-r bg-card md:w-80 ${active ? "hidden md:flex" : "flex"}`}>
+      <div className={`flex w-full min-w-0 flex-col border-r bg-card md:w-80 md:shrink-0 ${active ? "hidden md:flex" : "flex"}`}>
         <div className="space-y-2 border-b p-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -382,7 +382,7 @@ function Inbox() {
       </div>
 
       {/* Conversation */}
-      <div className={`flex flex-1 flex-col ${active ? "flex" : "hidden md:flex"}`}>
+      <div className={`flex min-w-0 flex-1 flex-col overflow-hidden ${active ? "flex" : "hidden md:flex"}`}>
         {!active ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
             <div className="grid h-14 w-14 place-items-center rounded-full bg-muted">
