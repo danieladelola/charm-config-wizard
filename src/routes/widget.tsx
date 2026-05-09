@@ -363,7 +363,7 @@ function WidgetApp() {
 
   const color = settings?.brand_color || "#1e90ff";
   const headerGradient = `linear-gradient(135deg, #7c3aed 0%, ${color} 100%)`;
-  const supportName = "TZ Support";
+  const supportName = "Support";
   const logoUrl = "/tz-logo.png";
 
   if (step === "loading") return <div className="flex h-screen items-center justify-center text-sm text-gray-500">Loading…</div>;
