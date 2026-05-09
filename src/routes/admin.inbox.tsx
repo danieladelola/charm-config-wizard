@@ -543,10 +543,16 @@ function Inbox() {
       {/* Visitor sidebar */}
       {active && (
         <aside
-          className={`w-72 shrink-0 space-y-5 overflow-y-auto border-l bg-card p-4 text-sm ${
-            showVisitorPanel ? "absolute inset-y-14 right-0 z-20 block" : "hidden"
-          } lg:relative lg:inset-auto lg:block`}
+          className={`w-full max-w-xs shrink-0 space-y-5 overflow-y-auto border-l bg-card p-4 text-sm shadow-xl lg:w-72 lg:shadow-none ${
+            showVisitorPanel ? "fixed inset-y-0 right-0 z-40 block" : "hidden"
+          } lg:relative lg:inset-auto lg:block lg:shadow-none`}
         >
+          <div className="flex items-center justify-between lg:hidden">
+            <div className="text-sm font-semibold">Details</div>
+            <Button variant="ghost" size="icon" onClick={() => setShowVisitorPanel(false)} aria-label="Close panel">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <div>
             <SectionLabel>Visitor</SectionLabel>
             <div className="mt-2 space-y-1.5">
