@@ -452,7 +452,7 @@ function Inbox() {
               </div>
             </div>
 
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-muted/20 p-4">
+            <div ref={scrollRef} className="min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto bg-muted/20 p-3 sm:p-4">
               {messages.map((m, i) => {
                 const showTime =
                   i === 0 || new Date(m.created_at).getTime() - new Date(messages[i - 1].created_at).getTime() > 5 * 60 * 1000;
@@ -463,9 +463,9 @@ function Inbox() {
                         {format(new Date(m.created_at), "PP · HH:mm")}
                       </div>
                     )}
-                    <div className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
+                    <div className={`flex w-full ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${
+                        className={`max-w-[85%] min-w-0 break-words rounded-2xl px-3 py-2 text-sm shadow-sm sm:max-w-[78%] sm:px-3.5 ${
                           m.sender === "admin"
                             ? "rounded-br-sm bg-primary text-primary-foreground"
                             : m.sender === "system"
