@@ -414,17 +414,17 @@ function Inbox() {
                   {[activeVisitor?.email, activeVisitor?.phone, active.domain].filter(Boolean).join(" · ")}
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" onClick={markUnread} title="Mark unread">
-                  <Clock className="h-3.5 w-3.5" />
+              <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+                <Button variant="ghost" size="icon" onClick={markUnread} title="Mark unread">
+                  <Clock className="h-4 w-4" />
                 </Button>
                 {active.status !== "closed" ? (
-                  <Button variant="outline" size="sm" onClick={() => setStatus("closed")}>
-                    <X className="mr-1 h-3.5 w-3.5" /> Close
+                  <Button variant="outline" size="sm" onClick={() => setStatus("closed")} title="Close chat" className="px-2 sm:px-3">
+                    <X className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Close</span>
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm" onClick={() => setStatus("open")}>
-                    <RotateCcw className="mr-1 h-3.5 w-3.5" /> Reopen
+                  <Button variant="outline" size="sm" onClick={() => setStatus("open")} title="Reopen chat" className="px-2 sm:px-3">
+                    <RotateCcw className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Reopen</span>
                   </Button>
                 )}
                 <AlertDialog>
@@ -543,10 +543,16 @@ function Inbox() {
       {/* Visitor sidebar */}
       {active && (
         <aside
-          className={`w-72 shrink-0 space-y-5 overflow-y-auto border-l bg-card p-4 text-sm ${
-            showVisitorPanel ? "absolute inset-y-14 right-0 z-20 block" : "hidden"
-          } lg:relative lg:inset-auto lg:block`}
+          className={`w-full max-w-xs shrink-0 space-y-5 overflow-y-auto border-l bg-card p-4 text-sm shadow-xl lg:w-72 lg:shadow-none ${
+            showVisitorPanel ? "fixed inset-y-0 right-0 z-40 block" : "hidden"
+          } lg:relative lg:inset-auto lg:block lg:shadow-none`}
         >
+          <div className="flex items-center justify-between lg:hidden">
+            <div className="text-sm font-semibold">Details</div>
+            <Button variant="ghost" size="icon" onClick={() => setShowVisitorPanel(false)} aria-label="Close panel">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <div>
             <SectionLabel>Visitor</SectionLabel>
             <div className="mt-2 space-y-1.5">

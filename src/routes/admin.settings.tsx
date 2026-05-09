@@ -77,11 +77,11 @@ function SettingsPage() {
           </div>
 
           <Tabs defaultValue="appearance">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="appearance">Appearance</TabsTrigger>
-              <TabsTrigger value="behavior">Behavior</TabsTrigger>
-              <TabsTrigger value="notifications">Notifications</TabsTrigger>
-              <TabsTrigger value="embed">Embed</TabsTrigger>
+            <TabsList className="flex w-full overflow-x-auto sm:grid sm:grid-cols-4">
+              <TabsTrigger value="appearance" className="flex-1 text-xs sm:text-sm">Appearance</TabsTrigger>
+              <TabsTrigger value="behavior" className="flex-1 text-xs sm:text-sm">Behavior</TabsTrigger>
+              <TabsTrigger value="notifications" className="flex-1 text-xs sm:text-sm">Notify</TabsTrigger>
+              <TabsTrigger value="embed" className="flex-1 text-xs sm:text-sm">Embed</TabsTrigger>
             </TabsList>
 
             <TabsContent value="appearance" className="mt-4 space-y-4">

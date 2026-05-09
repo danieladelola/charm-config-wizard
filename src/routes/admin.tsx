@@ -122,7 +122,7 @@ function AdminLayout() {
             </SheetTrigger>
           </Sheet>
 
-          <div className="ml-1 text-sm font-semibold tracking-tight sm:text-base">{pageTitle(loc.pathname)}</div>
+          <div className="ml-1 min-w-0 truncate text-sm font-semibold tracking-tight sm:text-base">{pageTitle(loc.pathname)}</div>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
             <label className="hidden items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs sm:flex">
