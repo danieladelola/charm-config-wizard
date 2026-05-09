@@ -100,7 +100,7 @@ function AdminLayout() {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-muted/30 text-foreground">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-muted/30 text-foreground">
       {/* Desktop sidebar */}
       <SidebarNav className="hidden md:flex" />
 
@@ -111,7 +111,7 @@ function AdminLayout() {
         </SheetContent>
       </Sheet>
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur sm:px-5">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -157,7 +157,7 @@ function AdminLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-hidden">
+        <main className="w-full min-w-0 flex-1 overflow-hidden">
           <Outlet />
         </main>
       </div>
